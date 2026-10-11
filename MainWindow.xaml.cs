@@ -3,7 +3,7 @@ using System.Windows;
 using Forms = System.Windows.Forms;
 using TextBlock = System.Windows.Controls.TextBlock;
 
-namespace OpenSpace;
+namespace Footprint;
 
 public partial class MainWindow : Window
 {
