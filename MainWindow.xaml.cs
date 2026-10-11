@@ -35,26 +35,26 @@ public partial class MainWindow : Window
     private async void Scan_Click(object sender, RoutedEventArgs e)
     {
         if (root is null) return;
-        scanCts?.Cancel(); scanCts = new CancellationTokenSource(); ScanButton.IsEnabled = false; CancelButton.IsEnabled = true; StatusText.Text = "Scanningâ€¦"; issuesText.Text = "Collecting access evidenceâ€¦";
+        scanCts?.Cancel(); scanCts = new CancellationTokenSource(); ScanButton.IsEnabled = false; CancelButton.IsEnabled = true; StatusText.Text = "Scanning…"; issuesText.Text = "Collecting access evidence…";
         try
         {
             var progress = new Progress<SpaceEntry>(entry => StatusText.Text = $"Scanning {Path.GetFileName(entry.Path)}");
             var report = await Task.Run(() => ScanEngine.ScanDetailed(root, scanCts.Token, progress), scanCts.Token);
             var entries = report.Entries;
-            EntryList.ItemsSource = entries.Take(100).Select(x => $"{(x.IsDirectory ? "â–£" : "â€¢")}  {Path.GetFileName(x.Path)}    {Format(x.Bytes)}").ToArray();
+            EntryList.ItemsSource = entries.Take(100).Select(x => $"{(x.IsDirectory ? "▣" : "•")}  {Path.GetFileName(x.Path)}    {Format(x.Bytes)}").ToArray();
             var largest = entries.FirstOrDefault(); TotalText.Text = Format(report.TotalBytes);
-            largestText.Text = largest is null ? "Largest location" : $"Largest: {Path.GetFileName(largest.Path)}  Â·  {Format(largest.Bytes)}";
+            largestText.Text = largest is null ? "Largest location" : $"Largest: {Path.GetFileName(largest.Path)}  ·  {Format(largest.Bytes)}";
             largestBar.Value = report.TotalBytes == 0 || largest is null ? 0 : Math.Min(100, largest.Bytes * 100d / report.TotalBytes);
-            CountText.Text = $"{report.FilesScanned:N0} files Â· {entries.Count(x => x.IsDirectory):N0} folders";
+            CountText.Text = $"{report.FilesScanned:N0} files · {entries.Count(x => x.IsDirectory):N0} folders";
             if (report.Issues.Count == 0)
             {
-                issuesText.Text = "Complete coverage Â· no inaccessible entries";
+                issuesText.Text = "Complete coverage · no inaccessible entries";
                 issuesText.Foreground = System.Windows.Media.Brushes.SeaGreen;
                 StatusText.Text = "Scan complete";
             }
             else
             {
-                issuesText.Text = $"{report.Issues.Count:N0} item(s) skipped Â· inaccessible or reparse-point paths";
+                issuesText.Text = $"{report.Issues.Count:N0} item(s) skipped · inaccessible or reparse-point paths";
                 issuesText.ToolTip = string.Join(Environment.NewLine, report.Issues.Take(20).Select(x => $"{x.Path}: {x.Reason}"));
                 issuesText.Foreground = System.Windows.Media.Brushes.DarkOrange;
                 StatusText.Text = $"Scan complete with {report.Issues.Count:N0} warning(s)";
