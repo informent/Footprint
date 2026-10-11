@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace OpenSpace;
+namespace Footprint;
 
 public sealed record SpaceEntry(string Path, long Bytes, bool IsDirectory);
 public sealed record ScanIssue(string Path, string Reason);

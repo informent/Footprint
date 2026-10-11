@@ -1,4 +1,4 @@
-using OpenSpace;
+using Footprint;
 using System.Diagnostics;
 var root = Path.Combine(Path.GetTempPath(), "openspace-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(Path.Combine(root, "nested")); File.WriteAllText(Path.Combine(root, "small.txt"), "small"); File.WriteAllBytes(Path.Combine(root, "nested", "large.bin"), new byte[4096]);
 var progressItems = new List<SpaceEntry>(); var report = ScanEngine.ScanDetailed(root, progress: new InlineProgress(progressItems)); var results = report.Entries;
