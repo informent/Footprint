@@ -8,6 +8,12 @@ Version 1.1 brings that evidence into the desktop interface. Each completed scan
 
 Version 1.2 also checks the selected root itself for reparse points before traversal, so choosing a junction reports a skipped root instead of scanning outside the selected location.
 
+## Complete reports in 1.4
+
+Scans now count empty folders, preserve drive-root paths, and select the largest child location instead of repeating the selected root. After a scan, use **Export CSV** to save every discovered file and folder, exact byte totals, and all skipped-path evidence. The on-screen list still shows the largest 100 results; exported reports contain every result.
+
+Exports use UTF-8 CSV, escape filenames and spreadsheet formulas, and require a new filename so scanned files and older reports cannot be overwritten. Reports contain local paths. Store them somewhere appropriate before sharing. Cancellation disables export until a new scan completes.
+
 MIT licensed.
 
 ## Name change
@@ -18,12 +24,12 @@ Footprint replaces OpenSpace. New builds use Footprint.exe and Footprint.csproj.
 
 Windows setup packages install Footprint for your current account, bundle the .NET runtime, create a Start menu shortcut and register an uninstaller. A desktop shortcut is optional. No administrator password or manual file copying is required. Existing settings and saved data stay in their current locations. The portable ZIP remains available.
 
-Download `Footprint-v1.3.1-setup.exe` from Releases and run it.
+Download `Footprint-v1.4.0-setup.exe` from Releases and run it.
 
 For unattended deployment:
 
 ```powershell
-Start-Process .\Footprint-v1.3.1-setup.exe -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait -PassThru
+Start-Process .\Footprint-v1.4.0-setup.exe -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait -PassThru
 ```
 
 Build from source with the [open-source Inno Setup compiler](https://github.com/jrsoftware/issrc) installed:
