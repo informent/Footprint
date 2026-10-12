@@ -31,4 +31,27 @@ finally
     Directory.Delete(root, true);
 }
 
+var reportRoot = Path.Combine(Path.GetTempPath(), "footprint-report-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(Path.Combine(reportRoot, "empty", "nested"));
+try
+{
+    var emptyReport = ScanEngine.ScanDetailed(reportRoot + Path.DirectorySeparatorChar);
+    if (emptyReport.FilesScanned != 0 || emptyReport.TotalBytes != 0 || emptyReport.Entries.Count != 3 || emptyReport.Entries.Any(x => !x.IsDirectory || x.Bytes != 0)) throw new Exception("Empty folders were not included in coverage.");
+    File.WriteAllBytes(Path.Combine(reportRoot, "data.bin"), new byte[73]);
+    var completeReport = ScanEngine.ScanDetailed(reportRoot);
+    if (completeReport.TotalBytes != 73 || completeReport.Entries.Single(x => x.Path == reportRoot).Bytes != 73 || completeReport.Entries.Count(x => x.IsDirectory) != 3) throw new Exception("Mixed empty-folder accounting failed.");
+    var csv = Path.Combine(reportRoot, "report.csv");
+    ScanExport.WriteCsv(completeReport, csv);
+    var original = File.ReadAllBytes(csv);
+    if (!File.ReadAllText(csv).Contains("1 files; 3 folders; 0 skipped items") || File.ReadAllLines(csv).Length != completeReport.Entries.Count + 2) throw new Exception("Export omitted scan evidence.");
+    try { ScanExport.WriteCsv(completeReport, csv); throw new Exception("Report overwrote an existing file."); } catch (IOException) { }
+    if (!File.ReadAllBytes(csv).SequenceEqual(original)) throw new Exception("Rejected overwrite changed the report.");
+    var escaped = Path.Combine(reportRoot, "escaped.csv");
+    ScanExport.WriteCsv(new ScanReport(Array.Empty<SpaceEntry>(), new[] { new ScanIssue("=SUM(1,2)", "quote \" and\nnewline") }, 0, 0), escaped);
+    var exported = File.ReadAllText(escaped);
+    if (!exported.Contains("'=SUM(1,2)") || !exported.Contains("quote \"\" and\nnewline")) throw new Exception("CSV escaping or formula protection failed.");
+    Console.WriteLine("PASS: empty directory coverage, exact totals, complete CSV evidence, formula escaping, and overwrite protection");
+}
+finally { Directory.Delete(reportRoot, true); }
+
 sealed class InlineProgress(List<SpaceEntry> items) : IProgress<SpaceEntry> { public void Report(SpaceEntry value) => items.Add(value); }
